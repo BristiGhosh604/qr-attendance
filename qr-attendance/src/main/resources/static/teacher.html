@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard — QR Attendance</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <h2>📋 QR Attendance</h2>
+            <p>Teacher Portal</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active" onclick="showSection('dashboard')">
+                <span class="nav-icon">🏠</span> Dashboard
+            </button>
+            <button class="nav-item" onclick="showSection('session')">
+                <span class="nav-icon">📡</span> Start Session
+            </button>
+            <button class="nav-item" onclick="showSection('students')">
+                <span class="nav-icon">👥</span> Present Students
+            </button>
+            <button class="nav-item" onclick="showSection('audit')">
+                <span class="nav-icon">🔐</span> Security Audit
+            </button>
+            <button class="nav-item" onclick="showSection('analytics')">
+                <span class="nav-icon">📊</span> Analytics
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-pill">
+                <div class="user-avatar" id="userAvatar">T</div>
+                <div class="user-info">
+                    <p id="sidebarName">Teacher</p>
+                    <span>Teacher</span>
+                </div>
+            </div>
+            <button class="btn btn-outline btn-sm"
+                    style="margin-top:0.6rem;"
+                    onclick="logout()">
+                Sign out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- ── DASHBOARD SECTION ── -->
+        <div id="sec-dashboard">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p id="dashGreeting">Good morning! Ready to start a session?</p>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-row">
+                <div class="stat-card stat-blue">
+                    <div class="stat-icon icon-blue">📚</div>
+                    <div class="stat-number" id="statPresent">0</div>
+                    <div class="stat-label">Present today</div>
+                </div>
+                <div class="stat-card stat-red">
+                    <div class="stat-icon icon-red">⚠️</div>
+                    <div class="stat-number" id="statSuspicious">0</div>
+                    <div class="stat-label">Suspicious attempts</div>
+                </div>
+                <div class="stat-card stat-green">
+                    <div class="stat-icon icon-green">✅</div>
+                    <div class="stat-number" id="statStatus">—</div>
+                    <div class="stat-label">Session status</div>
+                </div>
+                <div class="stat-card stat-purple">
+                    <div class="stat-icon icon-purple">⏱️</div>
+                    <div class="stat-number" id="statRefresh">15s</div>
+                    <div class="stat-label">QR refresh timer</div>
+                </div>
+            </div>
+
+            <!-- Quick QR + Recent Students -->
+            <div style="display:grid;
+                        grid-template-columns:1fr 1.6fr;
+                        gap:1.25rem;">
+
+                <!-- QR Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Live QR Code</h3>
+                        <span class="badge badge-success"
+                              id="qrStatusBadge"
+                              style="display:none;">● Live</span>
+                    </div>
+
+                    <div id="qrContainer" style="display:none;">
+                        <div class="countdown-wrap">
+                            <div class="countdown-label">
+                                <span>Refreshes in</span>
+                                <span id="countdownText"
+                                      style="font-weight:700;
+                                             color:var(--primary);">
+                                    15s
+                                </span>
+                            </div>
+                            <div class="countdown-bar-bg">
+                                <div class="countdown-bar-fill"
+                                     id="countdownBar"
+                                     style="width:100%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="text-align:center;">
+                            <div id="qrWrapper"
+                                 style="display:inline-block;
+                                        transition:opacity 0.3s ease;">
+                                <img id="qrImage" src="" alt="QR Code"
+                                     style="width:200px; height:200px;
+                                            border-radius:10px;
+                                            border:1.5px solid var(--border);">
+                            </div>
+                            <p id="refreshStatus"
+                               style="font-size:0.75rem;
+                                      color:var(--text-light);
+                                      margin-top:0.6rem;">
+                                🔄 Auto-refreshing every 15 seconds
+                            </p>
+                            <p style="font-size:0.72rem;
+                                      color:var(--danger);
+                                      margin-top:3px;">
+                                Single-use · Expires in 20 minutes
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="qrPlaceholder"
+                         class="empty-state">
+                        <div class="empty-icon">📡</div>
+                        <p>No active session</p>
+                        <p style="margin-top:4px; font-size:0.8rem;">
+                            Go to Start Session to generate a QR
+                        </p>
+                        <button class="btn btn-primary btn-sm"
+                                style="margin-top:0.75rem; width:auto;"
+                                onclick="showSection('session')">
+                            Start Session →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Students Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Present Students</h3>
+                        <span style="font-size:0.75rem;
+                                     color:var(--text-light);"
+                              id="autoRefreshText"></span>
+                    </div>
+                    <div id="presentTableContainer">
+                        <div class="empty-state">
+                            <div class="empty-icon">👥</div>
+                            <p>No students scanned yet</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── SESSION SECTION ── -->
+        <div id="sec-session" style="display:none;">
+            <div class="page-header">
+                <h1>Start Session</h1>
+                <p>Configure and launch an attendance session</p>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:1.25rem;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Session Settings</h3>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Allowed radius (metres)</label>
+                        <select id="radiusSelect">
+                            <option value="500">500m — Indoor / Home Testing</option>
+                            <option value="100">100m — Same Building</option>
+                            <option value="50">50m — Same Floor</option>
+                            <option value="10">10m — Same Room (Outdoor GPS)</option>
+                            <option value="5">5m — Strict (Open Air)</option>
+                        </select>
+                        <p class="input-hint">
+                            Use 500m for indoor testing, 5–10m for real classrooms
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Classroom GPS coordinates</label>
+                        <div style="display:grid;
+                                    grid-template-columns:1fr 1fr;
+                                    gap:0.5rem;">
+                            <input type="number" id="manualLat"
+                                   placeholder="Latitude e.g. 22.5726"
+                                   step="any">
+                            <input type="number" id="manualLng"
+                                   placeholder="Longitude e.g. 88.3639"
+                                   step="any">
+                        </div>
+                        <p class="input-hint">
+                            Get coordinates from Google Maps by long-pressing
+                            your classroom location
+                        </p>
+                    </div>
+
+                    <div style="display:grid;
+                                grid-template-columns:1fr 1fr;
+                                gap:0.75rem;
+                                margin-top:0.5rem;">
+                        <button class="btn btn-primary"
+                                onclick="getLocationAndStart()"
+                                id="startBtn">
+                            📍 Auto Detect
+                        </button>
+                        <button class="btn btn-success"
+                                onclick="manualStart()"
+                                id="manualBtn">
+                            📌 Manual Start
+                        </button>
+                    </div>
+                    <p class="input-hint" style="margin-top:0.5rem;">
+                        Auto detect works best on phones. Use Manual for laptops.
+                    </p>
+
+                    <div class="alert alert-success" id="sessionSuccess"></div>
+                    <div class="alert alert-error"   id="sessionError"></div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>How it works</h3>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:1rem;">
+                        <div style="display:flex; gap:0.75rem;
+                                    align-items:flex-start;">
+                            <div style="width:28px; height:28px;
+                                        border-radius:50%;
+                                        background:var(--primary-lt);
+                                        color:var(--primary);
+                                        font-size:0.75rem; font-weight:700;
+                                        display:flex; align-items:center;
+                                        justify-content:center;
+                                        flex-shrink:0;">1</div>
+                            <div>
+                                <p style="font-size:0.875rem; font-weight:600;">
+                                    Start a session
+                                </p>
+                                <p style="font-size:0.8rem;
+                                          color:var(--text-light);
+                                          margin-top:2px;">
+                                    Your GPS location is saved as the
+                                    classroom anchor point
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.75rem;
+                                    align-items:flex-start;">
+                            <div style="width:28px; height:28px;
+                                        border-radius:50%;
+                                        background:var(--success-lt);
+                                        color:var(--success);
+                                        font-size:0.75rem; font-weight:700;
+                                        display:flex; align-items:center;
+                                        justify-content:center;
+                                        flex-shrink:0;">2</div>
+                            <div>
+                                <p style="font-size:0.875rem; font-weight:600;">
+                                    Show QR to students
+                                </p>
+                                <p style="font-size:0.8rem;
+                                          color:var(--text-light);
+                                          margin-top:2px;">
+                                    QR refreshes every 15 seconds —
+                                    screenshot sharing is blocked
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.75rem;
+                                    align-items:flex-start;">
+                            <div style="width:28px; height:28px;
+                                        border-radius:50%;
+                                        background:var(--purple-lt);
+                                        color:var(--purple);
+                                        font-size:0.75rem; font-weight:700;
+                                        display:flex; align-items:center;
+                                        justify-content:center;
+                                        flex-shrink:0;">3</div>
+                            <div>
+                                <p style="font-size:0.875rem; font-weight:600;">
+                                    GPS verifies location
+                                </p>
+                                <p style="font-size:0.8rem;
+                                          color:var(--text-light);
+                                          margin-top:2px;">
+                                    Students must be within your set
+                                    radius to mark attendance
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:0.75rem;
+                                    align-items:flex-start;">
+                            <div style="width:28px; height:28px;
+                                        border-radius:50%;
+                                        background:var(--danger-lt);
+                                        color:var(--danger);
+                                        font-size:0.75rem; font-weight:700;
+                                        display:flex; align-items:center;
+                                        justify-content:center;
+                                        flex-shrink:0;">4</div>
+                            <div>
+                                <p style="font-size:0.875rem; font-weight:600;">
+                                    Cheating attempts logged
+                                </p>
+                                <p style="font-size:0.8rem;
+                                          color:var(--text-light);
+                                          margin-top:2px;">
+                                    Every failed scan is saved with
+                                    reason, GPS and timestamp
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── STUDENTS SECTION ── -->
+        <div id="sec-students" style="display:none;">
+            <div class="page-header">
+                <h1>Present Students</h1>
+                <p>Real-time attendance list for the active session</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="studentsCardTitle">Present Students</h3>
+                    <span class="badge badge-purple"
+                          id="presentCountBadge">0 present</span>
+                </div>
+                <div id="studentsTableFull">
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <p>Start a session to see present students</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── AUDIT SECTION ── -->
+        <div id="sec-audit" style="display:none;">
+            <div class="page-header">
+                <h1>Security Audit</h1>
+                <p>Monitor suspicious attendance attempts</p>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr;
+                        gap:1.25rem;
+                        margin-bottom:1.25rem;">
+                <div class="stat-card stat-red">
+                    <div class="stat-icon icon-red">🚨</div>
+                    <div class="stat-number" id="auditSuspCount">0</div>
+                    <div class="stat-label">Suspicious attempts</div>
+                </div>
+                <div class="stat-card stat-green">
+                    <div class="stat-icon icon-green">✅</div>
+                    <div class="stat-number" id="auditPresentCount">0</div>
+                    <div class="stat-label">Verified present</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Flagged Attempts</h3>
+                </div>
+                <div id="auditContent">
+                    <div class="empty-state">
+                        <div class="empty-icon">🔐</div>
+                        <p>No suspicious attempts detected</p>
+                        <p style="font-size:0.8rem; margin-top:4px;">
+                            Start a session to monitor activity
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── ANALYTICS SECTION ── -->
+        <div id="sec-analytics" style="display:none;">
+            <div class="page-header">
+                <h1>Analytics</h1>
+                <p>Attendance trends over the last 30 days</p>
+            </div>
+
+            <div style="display:grid;
+                        grid-template-columns:1fr 1fr 1fr;
+                        gap:1rem;
+                        margin-bottom:1.25rem;">
+                <div class="stat-card stat-blue">
+                    <div class="stat-icon icon-blue">📚</div>
+                    <div class="stat-number" id="totalSessionsStat">—</div>
+                    <div class="stat-label">Total sessions</div>
+                </div>
+                <div class="stat-card stat-green">
+                    <div class="stat-icon icon-green">👥</div>
+                    <div class="stat-number" id="totalPresentStat">—</div>
+                    <div class="stat-label">Total present (30 days)</div>
+                </div>
+                <div class="stat-card stat-purple">
+                    <div class="stat-icon icon-purple">📈</div>
+                    <div class="stat-number" id="avgAttendanceStat">—</div>
+                    <div class="stat-label">Avg per session</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Attendance trend — last 30 days</h3>
+                    <button class="btn btn-outline btn-sm"
+                            onclick="loadAnalytics()">
+                        Refresh
+                    </button>
+                </div>
+                <canvas id="attendanceChart" height="90"></canvas>
+                <p id="chartPlaceholder"
+                   style="text-align:center; color:var(--text-light);
+                          font-size:0.875rem; padding:2rem 0;">
+                    Loading analytics...
+                </p>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    let currentSessionId  = null;
+    let refreshInterval   = null;
+    let qrRefreshInterval = null;
+    let countdownInterval = null;
+    let countdownSeconds  = 15;
+    let attendanceChart   = null;
+
+    window.onload = function() {
+        const userId   = sessionStorage.getItem('userId');
+        const userName = sessionStorage.getItem('userName');
+        const userRole = sessionStorage.getItem('userRole');
+
+        if (!userId || userRole !== 'TEACHER') {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        document.getElementById('sidebarName').textContent = userName;
+        document.getElementById('userAvatar').textContent  =
+            userName.charAt(0).toUpperCase();
+
+        const hour = new Date().getHours();
+        const greeting = hour < 12 ? 'Good morning' :
+            hour < 17 ? 'Good afternoon' : 'Good evening';
+        document.getElementById('dashGreeting').textContent =
+            `${greeting}, ${userName}! Ready to start a session?`;
+
+        setTimeout(loadAnalytics, 1000);
+    };
+
+    function showSection(name) {
+        const sections = ['dashboard','session','students','audit','analytics'];
+        sections.forEach(s => {
+            document.getElementById('sec-' + s).style.display =
+                s === name ? 'block' : 'none';
+        });
+        document.querySelectorAll('.nav-item').forEach((btn, i) => {
+            btn.classList.toggle('active', i === sections.indexOf(name));
+        });
+        if (name === 'analytics') loadAnalytics();
+    }
+
+    function getLocationAndStart() {
+        const btn = document.getElementById('startBtn');
+        if (!navigator.geolocation) {
+            showAlert('sessionError',
+                'GPS not supported. Use Manual Start.', 'error');
+            return;
+        }
+        btn.textContent = '📍 Getting location...';
+        btn.disabled    = true;
+
+        const tid = setTimeout(() => {
+            btn.textContent = '📍 Auto Detect';
+            btn.disabled    = false;
+            showAlert('sessionError',
+                'GPS timed out. Please use Manual Start.', 'error');
+        }, 15000);
+
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                clearTimeout(tid);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                document.getElementById('manualLat').value = lat.toFixed(6);
+                document.getElementById('manualLng').value = lng.toFixed(6);
+                btn.textContent = '📍 Auto Detect';
+                btn.disabled    = false;
+                document.getElementById('sessionError').style.display = 'none';
+                const radius = parseInt(
+                    document.getElementById('radiusSelect').value);
+                startSession(lat, lng, radius);
+            },
+            err => {
+                clearTimeout(tid);
+                btn.textContent = '📍 Auto Detect';
+                btn.disabled    = false;
+                const msgs = {
+                    1: '❌ Location blocked. Allow location in browser settings.',
+                    2: '❌ GPS unavailable. Use Manual Start.',
+                    3: '❌ GPS timed out. Use Manual Start.'
+                };
+                showAlert('sessionError',
+                    msgs[err.code] || '❌ GPS error. Use Manual Start.', 'error');
+            },
+            { enableHighAccuracy:false, timeout:15000, maximumAge:60000 }
+        );
+    }
+
+    async function manualStart() {
+        const lat = parseFloat(document.getElementById('manualLat').value);
+        const lng = parseFloat(document.getElementById('manualLng').value);
+        if (isNaN(lat) || isNaN(lng)) {
+            showAlert('sessionError',
+                'Please enter valid latitude and longitude', 'error');
+            return;
+        }
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            showAlert('sessionError', 'Invalid coordinates', 'error');
+            return;
+        }
+        const btn = document.getElementById('manualBtn');
+        btn.textContent = '📌 Starting...';
+        btn.disabled    = true;
+        try {
+            const radius = parseInt(
+                document.getElementById('radiusSelect').value);
+            await startSession(lat, lng, radius);
+        } catch(e) {
+            showAlert('sessionError', 'Failed to start session', 'error');
+        } finally {
+            btn.textContent = '📌 Manual Start';
+            btn.disabled    = false;
+        }
+    }
+
+    async function startSession(lat, lng, radius) {
+        const teacherId = sessionStorage.getItem('userId');
+        try {
+            const res  = await fetch('/api/teacher/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    teacherId:    parseInt(teacherId),
+                    latitude:     lat,
+                    longitude:    lng,
+                    radiusMetres: radius
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                currentSessionId = data.sessionId;
+                document.getElementById('qrImage').src =
+                    'data:image/png;base64,' + data.qrImage;
+                document.getElementById('qrContainer').style.display  = 'block';
+                document.getElementById('qrPlaceholder').style.display = 'none';
+                document.getElementById('qrStatusBadge').style.display = 'inline-block';
+                document.getElementById('statStatus').textContent      = 'Active';
+                document.getElementById('statStatus').style.color      = 'var(--success)';
+                showAlert('sessionSuccess',
+                    '✓ Session started! QR code is live.', 'success');
+                startQrAutoRefresh(data.sessionId);
+                document.getElementById('autoRefreshText').textContent =
+                    'Live · refreshes every 5s';
+                refreshInterval = setInterval(refreshPresentList, 5000);
+                refreshPresentList();
+            } else {
+                showAlert('sessionError',
+                    data.error || 'Failed to start session', 'error');
+            }
+        } catch(e) {
+            showAlert('sessionError', 'Cannot connect to server', 'error');
+        }
+    }
+
+    function startQrAutoRefresh(sessionId) {
+        stopQrAutoRefresh();
+        startCountdown();
+        qrRefreshInterval = setInterval(async () => {
+            await refreshQrCode(sessionId);
+            startCountdown();
+        }, 15000);
+    }
+
+    function stopQrAutoRefresh() {
+        if (qrRefreshInterval) clearInterval(qrRefreshInterval);
+        if (countdownInterval)  clearInterval(countdownInterval);
+    }
+
+    function startCountdown() {
+        countdownSeconds = 15;
+        updateCountdown();
+        if (countdownInterval) clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            countdownSeconds--;
+            updateCountdown();
+            if (countdownSeconds <= 0) clearInterval(countdownInterval);
+        }, 1000);
+    }
+
+    function updateCountdown() {
+        const text = document.getElementById('countdownText');
+        const bar  = document.getElementById('countdownBar');
+        const stat = document.getElementById('statRefresh');
+        if (!text || !bar) return;
+        text.textContent = countdownSeconds + 's';
+        if (stat) stat.textContent = countdownSeconds + 's';
+        bar.style.width = (countdownSeconds / 15 * 100) + '%';
+        if (countdownSeconds <= 5) {
+            bar.style.background  = 'var(--danger)';
+            text.style.color      = 'var(--danger)';
+        } else if (countdownSeconds <= 10) {
+            bar.style.background  = 'var(--warning)';
+            text.style.color      = 'var(--warning)';
+        } else {
+            bar.style.background  = 'var(--primary)';
+            text.style.color      = 'var(--primary)';
+        }
+    }
+
+    async function refreshQrCode(sessionId) {
+        try {
+            const wrapper = document.getElementById('qrWrapper');
+            if (wrapper) wrapper.style.opacity = '0.3';
+            const res  = await fetch(
+                `/api/teacher/session/${sessionId}/refresh-qr`,
+                { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('qrImage').src =
+                    'data:image/png;base64,' + data.qrImage;
+                const now = new Date();
+                document.getElementById('refreshStatus').textContent =
+                    `🔄 Refreshed at ${now.toLocaleTimeString()}`;
+            }
+            setTimeout(() => {
+                if (wrapper) wrapper.style.opacity = '1';
+            }, 300);
+        } catch(e) { console.error('QR refresh error:', e); }
+    }
+
+    async function refreshPresentList() {
+        if (!currentSessionId) return;
+        try {
+            const res      = await fetch(
+                `/api/teacher/session/${currentSessionId}/present`);
+            const students = await res.json();
+
+            document.getElementById('statPresent').textContent =
+                students.length;
+            document.getElementById('presentCountBadge').textContent =
+                students.length + ' present';
+
+            const html = students.length === 0
+                ? `<div class="empty-state">
+                   <div class="empty-icon">👥</div>
+                   <p>No students have scanned yet</p>
+               </div>`
+                : `<table class="student-table">
+                   <thead>
+                       <tr>
+                           <th>#</th>
+                           <th>Student</th>
+                           <th>Scanned at</th>
+                           <th>Status</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       ${students.map((s, i) => `
+                           <tr>
+                               <td style="color:var(--text-light);">
+                                   ${i + 1}
+                               </td>
+                               <td>
+                                   <div style="display:flex;
+                                               align-items:center;
+                                               gap:0.5rem;">
+                                       <div class="avatar">
+                                           ${s.studentName.charAt(0).toUpperCase()}
+                                       </div>
+                                       <strong>${s.studentName}</strong>
+                                   </div>
+                               </td>
+                               <td style="color:var(--text-light);">
+                                   ${new Date(s.scannedAt)
+                    .toLocaleTimeString()}
+                               </td>
+                               <td>
+                                   <span class="badge badge-success">
+                                       ✓ Present
+                                   </span>
+                               </td>
+                           </tr>
+                       `).join('')}
+                   </tbody>
+               </table>`;
+
+            document.getElementById('presentTableContainer').innerHTML = html;
+            document.getElementById('studentsTableFull').innerHTML     = html;
+
+            refreshAudit();
+        } catch(e) { console.error('Refresh error:', e); }
+    }
+
+    async function refreshAudit() {
+        if (!currentSessionId) return;
+        try {
+            const res  = await fetch(
+                `/api/teacher/session/${currentSessionId}/audit`);
+            const data = await res.json();
+
+            document.getElementById('statSuspicious').textContent  =
+                data.totalSuspicious;
+            document.getElementById('auditSuspCount').textContent  =
+                data.totalSuspicious;
+            document.getElementById('auditPresentCount').textContent =
+                data.totalPresent;
+
+            const html = data.totalSuspicious === 0
+                ? `<div class="empty-state">
+                   <div class="empty-icon">🔐</div>
+                   <p style="color:var(--success); font-weight:600;">
+                       No suspicious attempts detected
+                   </p>
+               </div>`
+                : data.suspiciousAttempts.map(s => `
+                   <div class="audit-item">
+                       <strong>${s.studentName}</strong>
+                       <div class="audit-reason">
+                           Reason: ${s.reason}
+                       </div>
+                       <div class="audit-time">
+                           At: ${new Date(s.attemptedAt)
+                    .toLocaleTimeString()}
+                       </div>
+                   </div>`).join('');
+
+            document.getElementById('auditContent').innerHTML = html;
+        } catch(e) { console.error('Audit error:', e); }
+    }
+
+    async function loadAnalytics() {
+        const teacherId = sessionStorage.getItem('userId');
+        if (!teacherId) return;
+        try {
+            const res  = await fetch(
+                `/api/teacher/analytics?teacherId=${teacherId}`);
+            const data = await res.json();
+            if (!res.ok) return;
+
+            const total  = data.data.reduce((a, b) => a + b, 0);
+            const avg    = data.totalSessions > 0
+                ? (total / data.totalSessions).toFixed(1) : 0;
+
+            document.getElementById('totalSessionsStat').textContent =
+                data.totalSessions;
+            document.getElementById('totalPresentStat').textContent  = total;
+            document.getElementById('avgAttendanceStat').textContent = avg;
+            document.getElementById('chartPlaceholder').style.display = 'none';
+
+            const labels = data.labels.map(d => {
+                const dt = new Date(d);
+                return dt.getDate() + ' ' +
+                    dt.toLocaleString('default', { month: 'short' });
+            });
+
+            if (attendanceChart) attendanceChart.destroy();
+
+            attendanceChart = new Chart(
+                document.getElementById('attendanceChart').getContext('2d'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label:           'Students Present',
+                            data:            data.data,
+                            backgroundColor: data.data.map(v =>
+                                v === 0
+                                    ? 'rgba(234,236,240,0.8)'
+                                    : 'rgba(67,97,238,0.75)'),
+                            borderColor:     data.data.map(v =>
+                                v === 0 ? '#EAECF0' : '#4361EE'),
+                            borderWidth:     1.5,
+                            borderRadius:    4,
+                        }]
+                    },
+                    options: {
+                        responsive:          true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx =>
+                                        ` ${ctx.parsed.y} students present`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize:1, precision:0 },
+                                grid: { color:'rgba(0,0,0,0.04)' }
+                            },
+                            x: {
+                                grid:  { display:false },
+                                ticks: { maxTicksLimit:10, font:{ size:11 } }
+                            }
+                        }
+                    }
+                }
+            );
+        } catch(e) { console.error('Analytics error:', e); }
+    }
+
+    function showAlert(id, message, type) {
+        const el         = document.getElementById(id);
+        el.textContent   = message;
+        el.className     = `alert alert-${type}`;
+        el.style.display = 'flex';
+    }
+
+    function logout() {
+        if (refreshInterval)  clearInterval(refreshInterval);
+        stopQrAutoRefresh();
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    }
+</script>
+</body>
+</html>

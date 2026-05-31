@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student — QR Attendance</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+    </script>
+</head>
+<body style="background:var(--bg);">
+
+<!-- Top bar (mobile-friendly, no sidebar needed for students) -->
+<div style="background:white; border-bottom:1.5px solid var(--border);
+            padding:0.875rem 1.25rem;
+            display:flex; justify-content:space-between; align-items:center;
+            position:sticky; top:0; z-index:50;">
+    <div>
+        <div style="font-weight:700; font-size:0.95rem; color:var(--text);">
+            📋 QR Attendance
+        </div>
+        <div style="font-size:0.72rem; color:var(--text-light);">
+            Student Portal
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.75rem;">
+        <div style="text-align:right;">
+            <div style="font-size:0.8rem; font-weight:600;
+                        color:var(--text);" id="studentName">
+                Loading...
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-light);">
+                Student
+            </div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logout()">
+            Sign out
+        </button>
+    </div>
+</div>
+
+<div style="max-width:480px; margin:0 auto; padding:1.25rem;">
+
+    <!-- Status Card -->
+    <div class="card" style="text-align:center; margin-bottom:1rem;">
+        <div style="font-size:3rem; margin-bottom:0.5rem;"
+             id="statusIcon">📷</div>
+        <div style="font-size:1.05rem; font-weight:700;
+                    color:var(--text);" id="statusTitle">
+            Ready to scan
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-light);
+                    margin-top:4px; line-height:1.5;"
+             id="statusMessage">
+            Point your camera at the QR code shown by your teacher
+        </div>
+    </div>
+
+    <!-- GPS Status -->
+    <div class="card" style="margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="width:36px; height:36px; border-radius:var(--radius-sm);
+                        background:var(--primary-lt);
+                        display:flex; align-items:center;
+                        justify-content:center; font-size:1.1rem;
+                        flex-shrink:0;">
+                📍
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:0.8rem; font-weight:600;
+                            color:var(--text);">
+                    GPS Location
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-light);
+                            margin-top:2px;" id="gpsStatus">
+                    Waiting for location...
+                </div>
+            </div>
+            <div style="font-size:1.2rem;" id="gpsIcon">⏳</div>
+        </div>
+    </div>
+
+    <!-- Device Fingerprint Info -->
+    <div class="card" style="margin-bottom:1rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+            <div style="width:36px; height:36px; border-radius:var(--radius-sm);
+                        background:var(--purple-lt);
+                        display:flex; align-items:center;
+                        justify-content:center; font-size:1.1rem;
+                        flex-shrink:0;">
+                🔒
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:0.8rem; font-weight:600;
+                            color:var(--text);">
+                    Device verified
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-light);
+                            margin-top:2px;" id="deviceStatus">
+                    Generating device fingerprint...
+                </div>
+            </div>
+            <div style="font-size:1.2rem;" id="deviceIcon">⏳</div>
+        </div>
+    </div>
+
+    <!-- QR Scanner -->
+    <div class="card">
+        <div style="font-size:0.875rem; font-weight:600;
+                    color:var(--text); margin-bottom:0.875rem;">
+            Scan QR Code
+        </div>
+        <div id="reader" style="border-radius:var(--radius-sm);
+                                 overflow:hidden;
+                                 border:1.5px solid var(--border);">
+        </div>
+        <div class="alert alert-success" id="scanSuccess"></div>
+        <div class="alert alert-error"   id="scanError"></div>
+    </div>
+
+</div>
+
+<script>
+    let studentLat    = null;
+    let studentLng    = null;
+    let scannerActive = true;
+    let html5QrCode   = null;
+    let deviceId      = null;
+
+    window.onload = function() {
+        const userId   = sessionStorage.getItem('userId');
+        const userName = sessionStorage.getItem('userName');
+        const userRole = sessionStorage.getItem('userRole');
+
+        if (!userId || userRole !== 'STUDENT') {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        document.getElementById('studentName').textContent = userName;
+
+        deviceId = getDeviceFingerprint();
+        document.getElementById('deviceStatus').textContent =
+            'ID: ' + deviceId.substring(0, 8) + '...';
+        document.getElementById('deviceIcon').textContent = '✅';
+
+        getGPSLocation();
+        startScanner();
+    };
+
+    function getDeviceFingerprint() {
+        const raw = [
+            navigator.userAgent,
+            screen.width + 'x' + screen.height,
+            Intl.DateTimeFormat().resolvedOptions().timeZone,
+            navigator.language
+        ].join('|');
+        let hash = 0;
+        for (let i = 0; i < raw.length; i++) {
+            hash = (hash << 5) - hash + raw.charCodeAt(i);
+            hash |= 0;
+        }
+        return Math.abs(hash).toString(16);
+    }
+
+    function getGPSLocation() {
+        navigator.geolocation.watchPosition(
+            pos => {
+                studentLat = pos.coords.latitude;
+                studentLng = pos.coords.longitude;
+                document.getElementById('gpsStatus').textContent =
+                    `Lat: ${studentLat.toFixed(5)}, Lng: ${studentLng.toFixed(5)}`;
+                document.getElementById('gpsIcon').textContent = '✅';
+            },
+            err => {
+                document.getElementById('gpsStatus').textContent =
+                    'Location access denied — cannot mark attendance';
+                document.getElementById('gpsIcon').textContent = '❌';
+            },
+            { enableHighAccuracy: true }
+        );
+    }
+
+    function startScanner() {
+        html5QrCode = new Html5QrcodeScanner(
+            'reader',
+            { fps: 10, qrbox: 220, rememberLastUsedCamera: true }
+        );
+        html5QrCode.render(onScanSuccess, () => {});
+    }
+
+    function onScanSuccess(decodedText) {
+        if (!scannerActive) return;
+        scannerActive = false;
+
+        if (!studentLat || !studentLng) {
+            showStatus('error', '❌', 'GPS not ready',
+                'Please wait for GPS to initialise then try again.');
+            showAlert('scanError',
+                'GPS location not available yet. Please wait.', 'error');
+            setTimeout(() => { scannerActive = true; }, 2000);
+            return;
+        }
+
+        if (!decodedText.startsWith('QR_TOKEN:')) {
+            showStatus('error', '❌', 'Invalid QR code',
+                'This QR code is not from the attendance system.');
+            setTimeout(() => {
+                scannerActive = true;
+                showStatus('ready', '📷', 'Ready to scan',
+                    'Point your camera at the QR code shown by your teacher');
+            }, 2500);
+            return;
+        }
+
+        const token     = decodedText.replace('QR_TOKEN:', '');
+        const studentId = sessionStorage.getItem('userId');
+
+        showStatus('scanning', '⏳', 'Verifying...',
+            'Checking GPS location and QR validity...');
+
+        markAttendance(token, deviceId, studentId);
+    }
+
+    async function markAttendance(token, devId, studentId) {
+        try {
+            const res  = await fetch('/api/student/attend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token:     token,
+                    latitude:  studentLat,
+                    longitude: studentLng,
+                    studentId: parseInt(studentId),
+                    deviceId:  devId
+                })
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                showStatus('success', '✅', 'Attendance marked!',
+                    `Welcome, ${data.studentName}! Your attendance is recorded.`);
+                showAlert('scanSuccess',
+                    '✅ Attendance marked successfully!', 'success');
+                if (html5QrCode) html5QrCode.clear();
+            } else {
+                showStatus('error', '❌', 'Attendance failed', data.error);
+                showAlert('scanError', data.error, 'error');
+                setTimeout(() => {
+                    scannerActive = true;
+                    showStatus('ready', '📷', 'Ready to scan',
+                        'Point your camera at the QR code shown by your teacher');
+                }, 3000);
+            }
+        } catch(e) {
+            showStatus('error', '❌', 'Connection error',
+                'Cannot reach the server. Is the app running?');
+            scannerActive = true;
+        }
+    }
+
+    function showStatus(type, icon, title, message) {
+        document.getElementById('statusIcon').textContent    = icon;
+        document.getElementById('statusTitle').textContent   = title;
+        document.getElementById('statusMessage').textContent = message;
+        const col = type === 'success' ? 'var(--success)' :
+            type === 'error'   ? 'var(--danger)'  : 'var(--text)';
+        document.getElementById('statusTitle').style.color = col;
+    }
+
+    function showAlert(id, message, type) {
+        const el         = document.getElementById(id);
+        el.textContent   = message;
+        el.className     = `alert alert-${type}`;
+        el.style.display = 'flex';
+    }
+
+    function logout() {
+        if (html5QrCode) html5QrCode.clear();
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    }
+</script>
+</body>
+</html>

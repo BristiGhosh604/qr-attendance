@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Attendance System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="page-center">
+    <div class="login-wrapper">
+
+        <!-- Branding above card -->
+        <div style="text-align:center; margin-bottom:1.5rem;">
+            <div class="login-logo">📋</div>
+            <h2 style="font-size:1.4rem; font-weight:700;
+                       color:var(--text); letter-spacing:-0.4px;">
+                QR Attendance
+            </h2>
+            <p style="color:var(--text-light); font-size:0.875rem; margin-top:4px;">
+                Smart GPS-verified attendance system
+            </p>
+        </div>
+
+        <div class="login-card">
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('login')">
+                    Sign In
+                </button>
+                <button class="tab" onclick="showTab('register')">
+                    Register
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email address</label>
+                    <input type="email" id="loginEmail"
+                           placeholder="you@college.edu">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword"
+                           placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary" onclick="login()">
+                    Sign In →
+                </button>
+                <div class="alert alert-success" id="loginSuccess"></div>
+                <div class="alert alert-error"   id="loginError"></div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" style="display:none;">
+                <div class="form-group">
+                    <label>Full name</label>
+                    <input type="text" id="regName"
+                           placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email address</label>
+                    <input type="email" id="regEmail"
+                           placeholder="you@college.edu">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword"
+                           placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="regRole">
+                        <option value="STUDENT">Student</option>
+                        <option value="TEACHER">Teacher</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="register()">
+                    Create Account →
+                </button>
+                <div class="alert alert-success" id="regSuccess"></div>
+                <div class="alert alert-error"   id="regError"></div>
+            </div>
+
+        </div>
+
+        <p style="text-align:center; font-size:0.75rem;
+                  color:var(--text-light); margin-top:1.25rem;">
+            QR Attendance System — MCA Project
+        </p>
+
+    </div>
+</div>
+
+<script>
+    function showTab(tab) {
+        const lf   = document.getElementById('loginForm');
+        const rf   = document.getElementById('registerForm');
+        const tabs = document.querySelectorAll('.tab');
+        if (tab === 'login') {
+            lf.style.display = 'block';
+            rf.style.display = 'none';
+            tabs[0].classList.add('active');
+            tabs[1].classList.remove('active');
+        } else {
+            lf.style.display = 'none';
+            rf.style.display = 'block';
+            tabs[0].classList.remove('active');
+            tabs[1].classList.add('active');
+        }
+    }
+
+    function showAlert(id, message, type) {
+        const el = document.getElementById(id);
+        el.textContent   = message;
+        el.className     = `alert alert-${type}`;
+        el.style.display = 'flex';
+    }
+
+    async function register() {
+        const name     = document.getElementById('regName').value;
+        const email    = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const role     = document.getElementById('regRole').value;
+        if (!name || !email || !password) {
+            showAlert('regError', 'Please fill in all fields', 'error');
+            return;
+        }
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password, role })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showAlert('regSuccess',
+                    '✓ Account created! Please sign in.', 'success');
+            } else {
+                showAlert('regError', data.error || 'Registration failed', 'error');
+            }
+        } catch (err) {
+            showAlert('regError', 'Cannot connect to server', 'error');
+        }
+    }
+
+    async function login() {
+        const email    = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        if (!email || !password) {
+            showAlert('loginError', 'Please enter email and password', 'error');
+            return;
+        }
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                sessionStorage.setItem('userId',   data.userId);
+                sessionStorage.setItem('userName', data.name);
+                sessionStorage.setItem('userRole', data.role);
+                showAlert('loginSuccess',
+                    `✓ Welcome back, ${data.name}!`, 'success');
+                setTimeout(() => {
+                    window.location.href =
+                        data.role === 'TEACHER' ? 'teacher.html' : 'student.html';
+                }, 900);
+            } else {
+                showAlert('loginError',
+                    data.error || 'Invalid credentials', 'error');
+            }
+        } catch (err) {
+            showAlert('loginError', 'Cannot connect to server', 'error');
+        }
+    }
+</script>
+</body>
+</html>
