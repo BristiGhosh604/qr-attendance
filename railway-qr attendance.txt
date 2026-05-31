@@ -1,0 +1,46 @@
+railway
+
+mysql://root:LXWarZJRBODYEGSaDENvPmhnwpYZtOOa@zephyr.proxy.rlwy.net:41961/railway
+
+LXWarZJRBODYEGSaDENvPmhnwpYZtOOa
+
+mysql://root:LXWarZJRBODYEGSaDENvPmhnwpYZtOOa@mysql-kg4j.railway.internal:3306/railway
+
+MYSQLDATABASE  railway
+
+mysql-kg4j.railway.internal
+
+LXWarZJRBODYEGSaDENvPmhnwpYZtOOa
+
+MYSQLPORT  3306
+
+MYSQLUSER  root
+
+MYSQLHOST  mysql-kg4j.railway.internal
+
+MYSQLPASSWORD  GIKrGqkaOvBtyndHIIQMRUlzhuUJIlGf
+
+zephyr.proxy.rlwy.net
+
+41961
+
+3306
+
+invigorating-motivation
+
+production
+
+MySQL-kg4J
+
+4ec5c650-e962-47e4-ad3a-45bd9c995c25
+
+b59cbc55-8420-4b1e-a42f-9db5fdf9d58f
+
+bd4196e6-12cc-4e25-a27f-8cf379874d24
+
+a81d1ee2-3d76-4db5-ad4d-a5dbd5d23ce4
+
+mysql-volume-QLAq
+
+/var/lib/mysql
+
