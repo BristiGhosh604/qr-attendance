@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: qr-attendance
+    runtime: java
+    rootDir: qr-attendance
+    buildCommand: mvn clean install -DskipTests
+    startCommand: java -jar target/qr-attendance-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
