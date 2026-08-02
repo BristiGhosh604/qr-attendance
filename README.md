@@ -31,7 +31,7 @@ A full-stack web application that automates classroom attendance using QR codes,
 - 📊 Thirty-day attendance analytics and session trends
 - 👩‍🏫 Real-time present-student register that refreshes automatically
 
-### Upgraded frontend experience
+### Frontend experience
 
 - ⚛️ React-based single-page interface for authentication, teacher tools, and student scanning
 - 🎨 Pastel 3D-inspired visual design with coordinated light and dark themes
