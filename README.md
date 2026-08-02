@@ -65,7 +65,7 @@ A full-stack web application that automates classroom attendance using QR codes 
 ### Steps
 
 1. Clone the repository
-   git clone https://github.com/DarkFae604/qr-attendance.git
+   git clone https://github.com/BristiGhosh604/qr-attendance.git
 
 2. Navigate to project
    cd qr-attendance/qr-attendance
