@@ -97,7 +97,6 @@ A full-stack web application that automates classroom attendance using QR codes,
 </div>
 
 ---
-
 ## 📊 GitHub Stats
 
 <div align="center">
