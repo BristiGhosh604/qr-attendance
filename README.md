@@ -13,9 +13,7 @@ A full-stack web application that automates classroom attendance using QR codes,
 **https://qr-attendance-80aq.onrender.com**
 
 > First load may take 50 seconds if inactive. Please wait.
-
 ---
-
 ## ✨ Key Features
 
 ### Attendance and security
@@ -40,10 +38,6 @@ A full-stack web application that automates classroom attendance using QR codes,
 - 📱 Responsive layouts for desktops, tablets, and mobile devices
 - ♿ Keyboard focus styles and reduced-motion support for improved accessibility
 - 🌗 Persistent theme preference across sessions
-
-> [!IMPORTANT]
-> The frontend has been redesigned and compiled into Spring Boot's static resources. The backend architecture, REST endpoints, validation flow, and database behaviour remain unchanged.
-
 ---
 ## Contributors
 - [Bristi Ghosh](https://github.com/BristiGhosh604) — [Backend Developer]
@@ -51,7 +45,7 @@ A full-stack web application that automates classroom attendance using QR codes,
 - [Sreoshi Bhowmik](https://github.com/Sreoshi170) — [Frontend Developer]
 ## 🛠️ **TECHNOLOGY STACK**
 ---
-### 🔒 **Backend and infrastructure — unchanged**
+### 🔒 **Backend and infrastructure**
 
 | **Layer** | **Technology** |
 |:---|:---|
@@ -62,7 +56,7 @@ A full-stack web application that automates classroom attendance using QR codes,
 | **QR Generation** | **ZXing (Google)** |
 | **Deployment** | **Render (Docker), GitHub** |
 
-### 🎨 **Frontend — upgraded**
+### 🎨 **Frontend**
 
 | **Layer** | **Technology** |
 |:---|:---|
