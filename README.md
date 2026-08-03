@@ -45,7 +45,7 @@ A full-stack web application that automates classroom attendance using QR codes,
 - [Sreoshi Bhowmik](https://github.com/Sreoshi170) —  Frontend Lead & UI/UX Design
 ---
 ## 🛠️ **TECHNOLOGY STACK**
----
+
 ### 🔒 **Backend and infrastructure**
 
 | **Layer** | **Technology** |
