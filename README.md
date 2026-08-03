@@ -255,7 +255,10 @@ qr-attendance/
 | **Suspicious-attempt audit** | Records failed verification attempts for teacher review |
 
 ---
-
+> 🚨 **Official Repository Notice:**  
+> This is a personal development fork. The main, up-to-date source code and primary project documentation are hosted at the organization repository:  
+> 👉 **[CodeBridge-Lab / qr-attendance](https://github.com/CodeBridge-Lab/qr-attendance)**
+---
 <div align="center">
 
 ### Built for faster, safer, and more engaging classroom attendance
