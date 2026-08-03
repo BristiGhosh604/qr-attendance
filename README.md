@@ -40,9 +40,10 @@ A full-stack web application that automates classroom attendance using QR codes,
 - 🌗 Persistent theme preference across sessions
 ---
 ## Contributors
-- [Bristi Ghosh](https://github.com/BristiGhosh604) — Project Lead & Backend Engineer
-- [Lokesh Hazra](https://github.com/Lokesh-069) — Frontend Co-Lead
-- [Sreoshi Bhowmik](https://github.com/Sreoshi170) — Frontend Co-Lead
+- [Bristi Ghosh](https://github.com/BristiGhosh604) — Project Founder & Backend Lead
+- [Lokesh Hazra](https://github.com/Lokesh-069) —  Frontend Lead & UI Architect
+- [Sreoshi Bhowmik](https://github.com/Sreoshi170) —  Frontend Lead & UI/UX Design
+---
 ## 🛠️ **TECHNOLOGY STACK**
 ---
 ### 🔒 **Backend and infrastructure**
