@@ -256,8 +256,7 @@ qr-attendance/
 
 ---
 > 🚨 **Official Repository Notice:**  
-> This is a personal development fork. The main, up-to-date source code and primary project documentation are hosted at the organization repository:  
-> 👉 **[CodeBridge-Lab / qr-attendance](https://github.com/CodeBridge-Lab/qr-attendance)**
+> This is a personal development fork. The main, up-to-date source code and primary project documentation are hosted at the organization repository:  > 👉 **[CodeBridge-Lab / qr-attendance](https://github.com/CodeBridge-Lab/qr-attendance)**
 ---
 <div align="center">
 
