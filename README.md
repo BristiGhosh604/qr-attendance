@@ -45,9 +45,12 @@ A full-stack web application that automates classroom attendance using QR codes,
 > The frontend has been redesigned and compiled into Spring Boot's static resources. The backend architecture, REST endpoints, validation flow, and database behaviour remain unchanged.
 
 ---
-
+## Contributors
+- [Bristi Ghosh](https://github.com/BristiGhosh604) — [your role, e.g. backend/QR logic]
+- [Lokesh Hazra](https://github.com/Lokesh-069) — [role]
+- [Sreoshi Bhowmik](https://github.com/Sreoshi170) — [role]
 ## 🛠️ **TECHNOLOGY STACK**
-
+---
 ### 🔒 **Backend and infrastructure — unchanged**
 
 | **Layer** | **Technology** |
