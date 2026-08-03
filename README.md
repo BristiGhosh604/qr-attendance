@@ -46,9 +46,9 @@ A full-stack web application that automates classroom attendance using QR codes,
 
 ---
 ## Contributors
-- [Bristi Ghosh](https://github.com/BristiGhosh604) — [your role, e.g. backend/QR logic]
-- [Lokesh Hazra](https://github.com/Lokesh-069) — [role]
-- [Sreoshi Bhowmik](https://github.com/Sreoshi170) — [role]
+- [Bristi Ghosh](https://github.com/BristiGhosh604) — [Backend Developer]
+- [Lokesh Hazra](https://github.com/Lokesh-069) — [Frontend Developer]
+- [Sreoshi Bhowmik](https://github.com/Sreoshi170) — [Frontend Developer]
 ## 🛠️ **TECHNOLOGY STACK**
 ---
 ### 🔒 **Backend and infrastructure — unchanged**
