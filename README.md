@@ -4,7 +4,7 @@
 
 ### Secure, location-verified classroom attendance powered by dynamic QR codes
 
-A full-stack web application that automates classroom attendance using QR codes, real-time GPS verification, device fingerprinting, and a modern responsive interface for teachers and students.
+A full-stack web application that automates classroom attendance using QR codes, real-time GPS verification, device fingerprinting and a modern responsive interface for teachers and students.
 
 </div>
 
@@ -31,11 +31,11 @@ A full-stack web application that automates classroom attendance using QR codes,
 
 ### Frontend experience
 
-- ⚛️ React-based single-page interface for authentication, teacher tools, and student scanning
+- ⚛️ React-based single-page interface for authentication, teacher tools and student scanning
 - 🎨 Pastel 3D-inspired visual design with coordinated light and dark themes
-- 🖱️ Pointer glow, click feedback, magnetic buttons, card-tilt effects, and animated icons
-- ✨ Scroll progress, reveal animations, QR shimmer, scanner motion, and live status feedback
-- 📱 Responsive layouts for desktops, tablets, and mobile devices
+- 🖱️ Pointer glow, click feedback, magnetic buttons, card-tilt effects and animated icons
+- ✨ Scroll progress, reveal animations, QR shimmer, scanner motion and live status feedback
+- 📱 Responsive layouts for desktops, tablets and mobile devices
 - ♿ Keyboard focus styles and reduced-motion support for improved accessibility
 - 🌗 Persistent theme preference across sessions
 ---
@@ -137,7 +137,7 @@ flowchart LR
 1. The teacher starts a session and the classroom GPS coordinates are saved.
 2. The backend generates a UUID-based QR token that refreshes every 15 seconds.
 3. The student scans the live QR code from the browser.
-4. The frontend sends the token, GPS coordinates, student ID, and device fingerprint to the backend.
+4. The frontend sends the token, GPS coordinates, student ID and device fingerprint to the backend.
 5. The backend validates all four conditions:
    - The token exists and has not already been used.
    - The token has not expired within the 20-minute session window.
@@ -152,13 +152,13 @@ flowchart LR
 
 | **Page** | **Purpose** | **Frontend experience** |
 |:---|:---|:---|
-| **Login / Register** | Role-based access for teachers and students | Animated authentication interface, password visibility controls, role selection, and theme support |
-| **Teacher Overview** | Quick view of the active classroom session | Live QR hero, present-student count, security status, analytics preview, and real-time register |
-| **Start Session** | Configure and launch attendance | GPS auto-detection, manual coordinates, configurable radius, and secure-flow guidance |
+| **Login / Register** | Role-based access for teachers and students | Animated authentication interface, password visibility controls, role selection and theme support |
+| **Teacher Overview** | Quick view of the active classroom session | Live QR hero, present-student count, security status, analytics preview and real-time register |
+| **Start Session** | Configure and launch attendance | GPS auto-detection, manual coordinates, configurable radius and secure-flow guidance |
 | **Present Students** | Monitor verified attendance | Automatically refreshed attendance table with verification status and scan time |
-| **Security Audit** | Review unusual attempts | Flagged-attempt details, reasons, location data, and verified-student totals |
-| **Analytics** | Understand participation trends | Thirty-day attendance chart, session totals, and average attendance |
-| **Student Scanner** | Mark attendance using the device camera | Live camera scanner, GPS/device/network checklist, privacy guidance, and verification feedback |
+| **Security Audit** | Review unusual attempts | Flagged-attempt details, reasons, location data and verified-student totals |
+| **Analytics** | Understand participation trends | Thirty-day attendance chart, session totals and average attendance |
+| **Student Scanner** | Mark attendance using the device camera | Live camera scanner, GPS/device/network checklist, privacy guidance and verification feedback |
 
 ---
 
@@ -175,7 +175,7 @@ flowchart LR
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/BristiGhosh604/qr-attendance.git
+  git clone https://github.com/CodeBridge-Lab/qr-attendance.git
    ```
 
 2. Navigate to the Spring Boot project:
@@ -260,6 +260,6 @@ qr-attendance/
 ---
 <div align="center">
 
-### Built for faster, safer, and more engaging classroom attendance
+### Built for faster, safer and more engaging classroom attendance
 
 </div>
