@@ -175,7 +175,7 @@ flowchart LR
 1. Clone the repository:
 
    ```bash
-  git clone https://github.com/CodeBridge-Lab/qr-attendance.git
+   git clone https://github.com/CodeBridge-Lab/qr-attendance.git
    ```
 
 2. Navigate to the Spring Boot project:
